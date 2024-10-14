@@ -1,173 +1,172 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>古风科技游戏</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap');
-        
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Noto Serif SC', serif;
-            background-color: #f0f0f0;
-            color: #333;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-			padding-left: 0; /* 新增：移除左侧padding */
-        }
-        header {
-            background-color: #1a1a1a;
-            padding: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-		header .container {
-            padding-left: 20px; /* 新增：为header中的container添加左侧padding */
-        }
-        .title {
-            font-size: 24px;
-            background: linear-gradient(45deg, #ff00aa, #00ffcc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-            animation: glow 2s ease-in-out infinite alternate;
-            letter-spacing: 2px;
-            margin: 0;
-        }
-        .subtitle {
-            font-size: 14px;
-            color: #00ffcc;
-            margin-top: 5px;
-            letter-spacing: 1px;
-        }
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ff00de, 0 0 20px #ff00de;
-            }
-            to {
-                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff00de, 0 0 40px #ff00de;
-            }
-        }
-        .game-icons {
-            display: flex;
-            justify-content: center;
-            margin-top: 50px;
-        }
-        .game-icon {
-            width: 150px;
-            height: 150px;
-            margin: 0 20px;
-            background-color: #fff;
-            border-radius: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .game-icon:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-        }
-        .game-icon img {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 10px;
-        }
-        .game-icon span {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-        }
-        .game-container {
-            display: none;
-            margin-top: 30px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-        }
-        canvas {
-            border: 2px solid #00ffcc;
-            box-shadow: 0 0 10px #00ffcc;
-            display: block;
-            margin: 0 auto;
-        }
-        .score-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-        }
-        .score, .high-score {
-            font-size: 16px;
-            color: #333;
-        }
-        .close-btn {
-            background-color: #ff00aa;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background-color 0.3s;
-        }
-        .close-btn:hover {
-            background-color: #e6009a;
-        }
-        @media (max-width: 768px) {
-            .game-icons {
-                flex-direction: column;
-                align-items: center;
-            }
-            .game-icon {
-                margin: 20px 0;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>古风科技游戏</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap');
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Serif SC', serif;
+    background-color: #f0f0f0;
+    color: #333;
+}
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+header {
+    background-color: #1a1a1a;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-align: left;
+}
+.title {
+    font-size: 24px;
+    background: linear-gradient(45deg, #ff00aa, #00ffcc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    animation: glow 2s ease-in-out infinite alternate;
+    letter-spacing: 2px;
+    margin: 0;
+}
+.subtitle {
+    font-size: 14px;
+    color: #00ffcc;
+    margin-top: 5px;
+    letter-spacing: 1px;
+}
+@keyframes glow {
+    from {
+        text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ff00de, 0 0 20px #ff00de;
+    }
+    to {
+        text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff00de, 0 0 40px #ff00de;
+    }
+}
+.game-icons {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+.game-icon {
+    width: 150px;
+    height: 150px;
+    margin: 0 20px;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.game-icon:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+.game-icon img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+.game-icon span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+.game-container {
+    display: none;
+    margin-top: 30px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    padding: 20px;
+    text-align: center;
+}
+canvas {
+    border: 2px solid #00ffcc;
+    box-shadow: 0 0 10px #00ffcc;
+    display: block;
+    margin: 0 auto;
+}
+.score-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+.score, .high-score {
+    font-size: 16px;
+    color: #333;
+    margin: 5px 0;
+}
+.close-btn {
+    background-color: #ff00aa;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+.close-btn:hover {
+    background-color: #e6009a;
+}
+@media (max-width: 768px) {
+    .game-icons {
+        flex-direction: column;
+        align-items: center;
+    }
+    .game-icon {
+        margin: 20px 0;
+    }
+}
+</style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1 class="title">古风科技</h1>
-            <div class="subtitle">改变生活</div>
-        </div>
-    </header>
+<header>
     <div class="container">
-        <div class="game-icons">
-            <div class="game-icon" id="snakeIcon">
-                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDExLjQgMjU1LjNjLTUuNy0xLjEtMTEuNCAxLjQtMTUuMyA1LjVsLTExNS41IDEyMi44TDE2NSAyNTcuOGMtNC0zLjgtMTAuOC0zLjgtMTQuOCAwTDMxLjggMzc1LjNjLTQuMSA0LjEtNCA4LjItLjEgMTEuNGwyLjcgMi43YzMuMSAyLjkgNy4yIDMuNCAxMS4zIDEuMSA1NC43LTMwLjcgMTI1LjctNzIuMSAxMjUuNy03Mi4xcy43LTEuNiAyLTEuNmMxLjQgMCAyLjEgMS42IDIuMSAxLjZzNzAuOSA0MS40IDEyNS43IDcyLjFjNC4xIDIuMyA4LjIgMS44IDExLjMtMS4xbDIuNy0yLjdjMy45LTMuMiA0LTcuNCAwLTExLjRsLTk2LjQtOTUuN2MtNS43LTUuOC0xNS40LTUuOC0yMS4yIDAgMCAwLTE0LjYgMTQuOC0yNS45IDI1LjlMOTYgMzg0bDYwLjIgNTkuOWM0IDMuOSAxMC40IDMuOSAxNC4zIDBMNDc0LjMgMTM5LjFjMy43LTMuNyA1LjgtOC43IDUuOC0xMy45VjkxLjdjMC01LjItNC4zLTkuNC05LjUtOS40aC0zMy42Yy01LjIgMC05LjQgNC4zLTkuNCA5LjV2NTEuMmwtMTUuNyAxNi43Yy0zLjkgNC4yLTUuNCAxMC4xLTMuOCAxNS42IDEuNiA1LjUgNi4xIDkuNyAxMS43IDExLjFsMjAuNyA1LjljNS43IDEuNiAxMS43LS42IDE1LjYtNS40bDQ3LTU3LjFjMy4yLTMuOSAyLjctOS42LTEuMi0xMi44bC0yNy4zLTIyLjVjLTMuOS0zLjItOS42LTIuNy0xMi44IDEuMmwtMTUuNyAxOS4xVjkxLjZjMC0xMC40LTguNC0xOC44LTE4LjgtMTguOGgtMzMuN2MtMTAuNCAwLTE4LjggOC40LTE4LjggMTguOHYzMy41YzAgNS4yIDIuMSAxMC4yIDUuOCAxMy45bDQ3LjcgNDcuN2MyLjggMi44IDYuNCA0LjMgMTAuMiA0LjMgMy45IDAgNy43LTEuNSAxMC42LTQuNGwyMC45LTIxLjljMy44LTQgMy44LTEwLjQgMC0xNC4zbC0yNC4yLTI0LjJjLTQtNC0xMC40LTQtMTQuMyAwbC0yMC45IDIxLjljLTMuOCAzLjktMy44IDEwLjMgMCAxNC4yTDM5NyAxOTguNmwtNzAuNiA3NC45Yy0zLjkgNC4xLTMuOSAxMC41IDAgMTQuNmw3MC42IDc0LjljMy45IDQuMSAxMC4yIDQuMSAxNC4xIDBsNzAuNi03NC45YzMuOS00LjEgMy45LTEwLjUgMC0xNC42bC03MC42LTc0LjljLTMuOS00LjEtMTAuMi00LjEtMTQuMSAwbC03MC42IDc0LjljLTMuOSA0LjEtMy45IDEwLjUgMCAxNC42bDcwLjYgNzQuOWMzLjkgNC4xIDEwLjIgNC4xIDE0LjEgMGw3MC42LTc0LjljMy45LTQuMSAzLjktMTAuNSAwLTE0LjZsLTcwLjYtNzQuOXoiLz48L3N2Zz4=" alt="Snake Game">
-                <span>贪吃蛇</span>
-            </div>
-            <div class="game-icon" id="tetrisIcon">
-                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDk2IDM4NGMwIDguOC03LjIgMTYtMTYgMTZoLTQ4VjE2MGMwLTM1LjMtMjguNy02NC02NC02NEgxNDRjLTguOCAwLTE2LTcuMi0xNi0xNlYzMmMwLTE3LjctMTQuMy0zMi0zMi0zMkg2NEMyOC43IDAgMCAyOC43IDAgNjR2Mzg0YzAgMzUuMyAyOC43IDY0IDY0IDY0aDM4NGMzNS4zIDAgNjQtMjguNyA2NC02NFYzODR6TTMyIDY0YzAtMTcuNyAxNC4zLTMyIDMyLTMyaDMyYzE3LjcgMCAzMiAxNC4zIDMyIDMydjMyYzAgMTcuNy0xNC4zIDMyLTMyIDMySDY0Yy0xNy43IDAtMzItMTQuMy0zMi0zMlY2NHptMCAzODRWMTYwYzAtMTcuNyAxNC4zLTMyIDMyLTMyaDMyYzE3LjcgMCAzMiAxNC4zIDMyIDMydjI4OGMwIDE3LjctMTQuMyAzMi0zMiAzMkg2NGMtMTcuNyAwLTMyLTE0LjMtMzItMzJ6bTQxNiAzMkgxNjBjLTE3LjcgMC0zMi0xNC4zLTMyLTMyVjE2MGMwLTE3LjcgMTQuMy0zMiAzMi0zMmgyODhjMTcuNyAwIDMyIDE0LjMyIDMyIDMydjI4OGMwIDE3LjctMTQuMyAzMi0zMiAzMnoiLz48L3N2Zz4=" alt="Tetris Game">
-                <span>俄罗斯方块</span>
-            </div>
+        <h1 class="title">古风科技</h1>
+        <div class="subtitle">改变生活</div>
+    </div>
+</header>
+<div class="container">
+    <div class="game-icons">
+        <div class="game-icon" id="snakeIcon">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDExLjQgMjU1LjNjLTUuNy0xLjEtMTEuNCAxLjQtMTUuMyA1LjVsLTExNS41IDEyMi44TDE2NSAyNTcuOGMtNC0zLjgtMTAuOC0zLjgtMTQuOCAwTDMxLjggMzc1LjNjLTQuMSA0LjEtNCA4LjItLjEgMTEuNGwyLjcgMi43YzMuMSAyLjkgNy4yIDMuNCAxMS4zIDEuMSA1NC43LTMwLjcgMTI1LjctNzIuMSAxMjUuNy03Mi4xcy43LTEuNiAyLTEuNmMxLjQgMCAyLjEgMS42IDIuMSAxLjZzNzAuOSA0MS40IDEyNS43IDcyLjFjNC4xIDIuMyA4LjIgMS44IDExLjMtMS4xbDIuNy0yLjdjMy45LTMuMiA0LTcuNCAwLTExLjRsLTk2LjQtOTUuN2MtNS43LTUuOC0xNS40LTUuOC0yMS4yIDAgMCAwLTE0LjYgMTQuOC0yNS45IDI1LjlMOTYgMzg0bDYwLjIgNTkuOWM0IDMuOSAxMC40IDMuOSAxNC4zIDBMNDc0LjMgMTM5LjFjMy43LTMuNyA1LjgtOC43IDUuOC0xMy45VjkxLjdjMC01LjItNC4zLTkuNC05LjUtOS40aC0zMy42Yy01LjIgMC05LjQgNC4zLTkuNCA5LjV2NTEuMmwtMTUuNyAxNi43Yy0zLjkgNC4yLTUuNCAxMC4xLTMuOCAxNS42IDEuNiA1LjUgNi4xIDkuNyAxMS43IDExLjFsMjAuNyA1LjljNS43IDEuNiAxMS43LS42IDE1LjYtNS40bDQ3LTU3LjFjMy4yLTMuOSAyLjctOS42LTEuMi0xMi44bC0yNy4zLTIyLjVjLTMuOS0zLjItOS42LTIuNy0xMi44IDEuMmwtMTUuNyAxOS4xVjkxLjZjMC0xMC40LTguNC0xOC44LTE4LjgtMTguOGgtMzMuN2MtMTAuNCAwLTE4LjggOC40LTE4LjggMTguOHYzMy41YzAgNS4yIDIuMSAxMC4yIDUuOCAxMy45bDQ3LjcgNDcuN2MyLjggMi44IDYuNCA0LjMgMTAuMiA0LjMgMy45IDAgNy43LTEuNSAxMC42LTQuNGwyMC45LTIxLjljMy44LTQgMy44LTEwLjQgMC0xNC4zbC0yNC4yLTI0LjJjLTQtNC0xMC40LTQtMTQuMyAwbC0yMC45IDIxLjljLTMuOCAzLjktMy44IDEwLjMgMCAxNC4yTDM5NyAxOTguNmwtNzAuNiA3NC45Yy0zLjkgNC4xLTMuOSAxMC41IDAgMTQuNmw3MC42IDc0LjljMy45IDQuMSAxMC4yIDQuMSAxNC4xIDBsNzAuNi03NC45YzMuOS00LjEgMy45LTEwLjUgMC0xNC42bC03MC42LTc0LjljLTMuOS00LjEtMTAuMi00LjEtMTQuMSAwbC03MC42IDc0LjljLTMuOSA0LjEtMy45IDEwLjUgMCAxNC42bDcwLjYgNzQuOWMzLjkgNC4xIDEwLjIgNC4xIDE0LjEgMGw3MC42LTc0LjljMy45LTQuMSAzLjktMTAuNSAwLTE0LjZsLTcwLjYtNzQuOXoiLz48L3N2Zz4=" alt="Snake Game">
+            <span>贪吃蛇</span>
         </div>
-        <div id="snakeGame" class="game-container">
-            <canvas id="snakeCanvas" width="300" height="300"></canvas>
-            <div class="score-container">
-                <div id="snakeScore" class="score">分数: 0</div>
-                <div id="snakeHighScore" class="high-score">最高分: 0</div>
-            </div>
-            <button class="close-btn" id="closeSnake">关闭游戏</button>
-        </div>
-        <div id="tetrisGame" class="game-container">
-            <canvas id="tetrisCanvas" width="300" height="600"></canvas>
-            <div class="score-container">
-                <div id="tetrisScore" class="score">分数: 0</div>
-                <div id="tetrisHighScore" class="high-score">最高分: 0</div>
-            </div>
-            <button class="close-btn" id="closeTetris">关闭游戏</button>
+        <div class="game-icon" id="tetrisIcon">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDk2IDM4NGMwIDguOC03LjIgMTYtMTYgMTZoLTQ4VjE2MGMwLTM1LjMtMjguNy02NC02NC02NEgxNDRjLTguOCAwLTE2LTcuMi0xNi0xNlYzMmMwLTE3LjctMTQuMy0zMi0zMi0zMkg2NEMyOC43IDAgMCAyOC43IDAgNjR2Mzg0YzAgMzUuMyAyOC43IDY0IDY0IDY0aDM4NGMzNS4zIDAgNjQtMjguNyA2NC02NFYzODR6TTMyIDY0YzAtMTcuNyAxNC4zLTMyIDMyLTMyaDMyYzE3LjcgMCAzMiAxNC4zIDMyIDMydjMyYzAgMTcuNy0xNC4zIDMyLTMyIDMySDY0Yy0xNy43IDAtMzItMTQuMy0zMi0zMlY2NHptMCAzODRWMTYwYzAtMTcuNyAxNC4zLTMyIDMyLTMyaDMyYzE3LjcgMCAzMiAxNC4zIDMyIDMydjI4OGMwIDE3LjctMTQuMyAzMi0zMiAzMkg2NGMtMTcuNyAwLTMyLTE0LjMtMzItMzJ6bTQxNiAzMkgxNjBjLTE3LjcgMC0zMi0xNC4zLTMyLTMyVjE2MGMwLTE3LjcgMTQuMy0zMiAzMi0zMmgyODhjMTcuNyAwIDMyIDE0LjMyIDMyIDMydjI4OGMwIDE3LjctMTQuMyAzMi0zMiAzMnoiLz48L3N2Zz4=" alt="Tetris Game">
+            <span>俄罗斯方块</span>
         </div>
     </div>
+    <div id="snakeGame" class="game-container">
+        <canvas id="snakeCanvas" width="300" height="300"></canvas>
+        <div class="score-container">
+            <div id="snakeScore" class="score">分数: 0</div>
+            <div id="snakeHighScore" class="high-score">最高分: 0</div>
+        </div>
+        <button class="close-btn" id="snakeCloseBtn">关闭游戏</button>
+    </div>
+    <div id="tetrisGame" class="game-container">
+        <canvas id="tetrisCanvas" width="300" height="600"></canvas>
+        <div class="score-container">
+            <div id="tetrisScore" class="score">分数: 0</div>
+            <div id="tetrisHighScore" class="high-score">最高分: 0</div>
+        </div>
+        <button class="close-btn" id="tetrisCloseBtn">关闭游戏</button>
+    </div>
+</div>
 
     <script>
         // 贪吃蛇游戏代码
