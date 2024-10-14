@@ -10,16 +10,40 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Noto Serif SC', serif;
-    background-color: #f0f0f0;
-    color: #333;
+    color: #fff;
+    background-color: #000;
+    overflow-x: hidden;
+}
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+}
+.star {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+    border-radius: 50%;
+    animation: twinkle 5s infinite;
+}
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
 }
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    position: relative;
+    z-index: 1;
 }
 header {
-    background-color: #1a1a1a;
+    background-color: rgba(26, 26, 26, 0.8);
     padding: 20px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     text-align: left;
@@ -59,7 +83,7 @@ header {
     margin: 0 20px;
     background-color: #fff;
     border-radius: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -69,7 +93,7 @@ header {
 }
 .game-icon:hover {
     transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
 }
 .game-icon img {
     width: 80px;
@@ -79,14 +103,14 @@ header {
 .game-icon span {
     font-size: 16px;
     font-weight: bold;
-    color: #333;
+    color: #000;
 }
 .game-container {
     display: none;
     margin-top: 30px;
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     padding: 20px;
     text-align: center;
 }
@@ -104,7 +128,7 @@ canvas {
 }
 .score, .high-score {
     font-size: 16px;
-    color: #333;
+    color: #fff;
     margin: 5px 0;
 }
 .close-btn {
@@ -133,6 +157,7 @@ canvas {
 </style>
 </head>
 <body>
+<div class="stars"></div>
 <header>
     <div class="container">
         <h1 class="title">古风科技</h1>
@@ -168,385 +193,295 @@ canvas {
     </div>
 </div>
 
-    <script>
-        // 贪吃蛇游戏代码
-        const snakeCanvas = document.getElementById('snakeCanvas');
-        const snakeCtx = snakeCanvas.getContext('2d');
-        const snakeScoreElement = document.getElementById('snakeScore');
-        const snakeHighScoreElement = document.getElementById('snakeHighScore');
+<script>
+function createStars() {
+    const starsContainer = document.querySelector('.stars');
+    const numberOfStars = 100;
 
-        const gridSize = 10;
-        const tileCount = snakeCanvas.width / gridSize;
+    for (let i = 0; i < numberOfStars; i++) {
+        const star = document.createElement('div');
+        star.classList.add('star');
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        star.style.width = `${Math.random() * 3 + 2}px`;
+        star.style.height = star.style.width;
+        star.style.opacity = Math.random();
+        star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+        star.style.animationDelay = `${Math.random() * 5}s`;
+        starsContainer.appendChild(star);
+    }
+}
 
-        let snake = [
-            {x: 10, y: 10},
-        ];
-        let food = {x: 15, y: 15};
-        let dx = 0;
-        let dy = 0;
-        let snakeScore = 0;
-        let snakeHighScore = localStorage.getItem('snakeHighScore') || 0;
+window.addEventListener('load', createStars);
 
-        snakeHighScoreElement.textContent = `最高分: ${snakeHighScore}`;
+// 贪吃蛇游戏代码
+const snakeCanvas = document.getElementById('snakeCanvas');
+const snakeCtx = snakeCanvas.getContext('2d');
+let snake = [{x: 150, y: 150}];
+let food = {x: 0, y: 0};
+let dx = 10;
+let dy = 0;
+let snakeScore = 0;
+let snakeHighScore = localStorage.getItem('snakeHighScore') || 0;
 
-        function drawSnakeGame() {
-            clearSnakeCanvas();
-            moveSnake();
-            drawSnake();
-            drawFood();
-            checkSnakeCollision();
-            updateSnakeScore();
+function drawSnakeGame() {
+    snakeCtx.clearRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+    snake.forEach(segment => {
+        snakeCtx.fillStyle = '#00ff00';
+        snakeCtx.fillRect(segment.x, segment.y, 10, 10);
+    });
+    snakeCtx.fillStyle = '#ff0000';
+    snakeCtx.fillRect(food.x, food.y, 10, 10);
+}
+
+function moveSnake() {
+    const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+        snakeScore++;
+        document.getElementById('snakeScore').textContent = `分数: ${snakeScore}`;
+        generateFood();
+    } else {
+        snake.pop();
+    }
+}
+
+function generateFood() {
+    food.x = Math.floor(Math.random() * 30) * 10;
+    food.y = Math.floor(Math.random() * 30) * 10;
+}
+
+function checkCollision() {
+    const head = snake[0];
+    if (head.x < 0 || head.x >= snakeCanvas.width || head.y < 0 || head.y >= snakeCanvas.height) {
+        return true;
+    }
+    for (let i = 1; i < snake.length; i++) {
+        if (head.x === snake[i].x && head.y === snake[i].y) {
+            return true;
         }
+    }
+    return false;
+}
 
-        function clearSnakeCanvas() {
-            snakeCtx.fillStyle = '#1a1a1a';
-            snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
-        }
+let snakeGameLoop;
 
-        function moveSnake() {
-            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-            snake.unshift(head);
-
-            if (head.x === food.x && head.y === food.y) {
-                snakeScore++;
-                generateFood();
-            } else {
-                snake.pop();
-            }
-        }
-
-        function drawSnake() {
-            snakeCtx.fillStyle = '#00ffcc';
-            snake.forEach(segment => {
-                snakeCtx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 1, gridSize - 1);
-            });
-        }
-
-        function drawFood() {
-            snakeCtx.fillStyle = '#ff00aa';
-            snakeCtx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 1, gridSize - 1);
-        }
-
-        function generateFood() {
-            food.x = Math.floor(Math.random() * tileCount);
-            food.y = Math.floor(Math.random() * tileCount);
-        }
-
-        function checkSnakeCollision() {
-            const head = snake[0];
-
-            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
-                resetSnakeGame();
-            }
-
-            for (let i = 1; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) {
-                    resetSnakeGame();
-                }
-            }
-        }
-
-        function resetSnakeGame() {
+function startSnakeGame() {
+    snake = [{x: 150, y: 150}];
+    dx = 10;
+    dy = 0;
+    snakeScore = 0;
+    document.getElementById('snakeScore').textContent = `分数: ${snakeScore}`;
+    generateFood();
+    if (snakeGameLoop) clearInterval(snakeGameLoop);
+    snakeGameLoop = setInterval(() => {
+        moveSnake();
+        if (checkCollision()) {
+            clearInterval(snakeGameLoop);
+            alert('游戏结束！');
             if (snakeScore > snakeHighScore) {
                 snakeHighScore = snakeScore;
                 localStorage.setItem('snakeHighScore', snakeHighScore);
-                snakeHighScoreElement.textContent = `最高分: ${snakeHighScore}`;
+                document.getElementById('snakeHighScore').textContent = `最高分: ${snakeHighScore}`;
             }
-            snake = [{x: 10, y: 10}];
-            food = {x: 15, y: 15};
-            dx = 0;
-            dy = 0;
-            snakeScore = 0;
         }
+        drawSnakeGame();
+    }, 100);
+}
 
-        function updateSnakeScore() {
-            snakeScoreElement.textContent = `分数: ${snakeScore}`;
-        }
+document.addEventListener('keydown', (e) => {
+    switch(e.key) {
+        case 'ArrowUp': if (dy === 0) { dx = 0; dy = -10; } break;
+        case 'ArrowDown': if (dy === 0) { dx = 0; dy = 10; } break;
+        case 'ArrowLeft': if (dx === 0) { dx = -10; dy = 0; } break;
+        case 'ArrowRight': if (dx === 0) { dx = 10; dy = 0; } break;
+    }
+});
 
-        function changeDirection(newDx, newDy) {
-            if ((newDx === 1 && dx === -1) || (newDx === -1 && dx === 1) ||
-                (newDy === 1 && dy === -1) || (newDy === -1 && dy === 1)) {
-                return;
+// 俄罗斯方块游戏代码
+const tetrisCanvas = document.getElementById('tetrisCanvas');
+const tetrisCtx = tetrisCanvas.getContext('2d');
+const BLOCK_SIZE = 30;
+const BOARD_WIDTH = 10;
+const BOARD_HEIGHT = 20;
+let tetrisBoard = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
+let currentPiece;
+let tetrisScore = 0;
+let tetrisHighScore = localStorage.getItem('tetrisHighScore') || 0;
+
+const SHAPES = [
+    [[1, 1, 1, 1]],
+    [[1, 1], [1, 1]],
+    [[1, 1, 1], [0, 1, 0]],
+    [[1, 1, 1], [1, 0, 0]],
+    [[1, 1, 1], [0, 0, 1]],
+    [[1, 1, 0], [0, 1, 1]],
+    [[0, 1, 1], [1, 1, 0]]
+];
+
+function drawTetrisGame() {
+    tetrisCtx.clearRect(0, 0, tetrisCanvas.width, tetrisCanvas.height);
+    tetrisBoard.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value) {
+                tetrisCtx.fillStyle = '#00ff00';
+                tetrisCtx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
             }
-            dx = newDx;
-            dy = newDy;
-        }
-
-        document.addEventListener('keydown', (event) => {
-            const keyPressed = event.keyCode;
-            if (keyPressed === 37) changeDirection(-1, 0);
-            if (keyPressed === 38) changeDirection(0, -1);
-            if (keyPressed === 39) changeDirection(1, 0);
-            if (keyPressed === 40) changeDirection(0, 1);
         });
-
-        // 滑动控制
-        let touchStartX = 0;
-        let touchStartY = 0;
-
-        snakeCanvas.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        }, false);
-
-        snakeCanvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-        }, false);
-
-        snakeCanvas.addEventListener('touchend', (e) => {
-            let touchEndX = e.changedTouches[0].clientX;
-            let touchEndY = e.changedTouches[0].clientY;
-
-            let dx = touchEndX - touchStartX;
-            let dy = touchEndY - touchStartY;
-
-            if (Math.abs(dx) > Math.abs(dy)) {
-                // 横向滑动
-                if (dx > 0) {
-                    changeDirection(1, 0); // 右
-                } else {
-                    changeDirection(-1, 0); // 左
+    });
+    if (currentPiece) {
+        currentPiece.shape.forEach((row, y) => {
+            row.forEach((value, x) => {
+                if (value) {
+                    tetrisCtx.fillStyle = '#ff0000';
+                    tetrisCtx.fillRect((currentPiece.x + x) * BLOCK_SIZE, (currentPiece.y + y) * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
                 }
-            } else {
-                // 纵向滑动
-                if (dy > 0) {
-                    changeDirection(0, 1); // 下
-                } else {
-                    changeDirection(0, -1); // 上
-                }
-            }
-        }, false);
-
-        let snakeGameLoop;
-
-        function startSnakeGame() {
-            if (snakeGameLoop) clearInterval(snakeGameLoop);
-            snakeGameLoop = setInterval(drawSnakeGame, 100);
-        }
-
-        // 俄罗斯方块游戏代码
-        const tetrisCanvas = document.getElementById('tetrisCanvas');
-        const tetrisCtx = tetrisCanvas.getContext('2d');
-        const tetrisScoreElement = document.getElementById('tetrisScore');
-        const tetrisHighScoreElement = document.getElementById('tetrisHighScore');
-
-        const COLS = 10;
-        const ROWS = 20;
-        const BLOCK_SIZE = 30;
-
-        // 定义方块形状
-        const SHAPES = [
-            [],
-            [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]],
-            [[1, 0, 0], [1, 1, 1], [0, 0, 0]],
-            [[0, 0, 1], [1, 1, 1], [0, 0, 0]],
-            [[1, 1], [1, 1]],
-            [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
-            [[0, 1, 0], [1, 1, 1], [0, 0, 0]],
-            [[1, 1, 0], [0, 1, 1], [0, 0, 0]]
-        ];
-
-        const COLORS = [
-            null,
-            '#FF0D72',
-            '#0DC2FF',
-            '#0DFF72',
-            '#F538FF',
-            '#FF8E0D',
-            '#FFE138',
-            '#3877FF'
-        ];
-
-        let tetrisBoard = Array(ROWS).fill().map(() => Array(COLS).fill(0));
-        let tetrisPiece;
-        let tetrisScore = 0;
-        let tetrisHighScore = localStorage.getItem('tetrisHighScore') || 0;
-
-        tetrisHighScoreElement.textContent = `最高分: ${tetrisHighScore}`;
-
-        function drawTetrisGame() {
-            tetrisCtx.fillStyle = '#1a1a1a';
-            tetrisCtx.fillRect(0, 0, tetrisCanvas.width, tetrisCanvas.height);
-
-            drawTetrisBoard();
-            drawTetrisPiece();
-        }
-
-        function drawTetrisBoard() {
-            tetrisBoard.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value > 0) {
-                        tetrisCtx.fillStyle = COLORS[value];
-                        tetrisCtx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
-                    }
-                });
             });
-        }
+        });
+    }
+}
 
-        function drawTetrisPiece() {
-            tetrisPiece.shape.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value > 0) {
-                        tetrisCtx.fillStyle = COLORS[tetrisPiece.color];
-                        tetrisCtx.fillRect((tetrisPiece.x + x) * BLOCK_SIZE, (tetrisPiece.y + y) * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
-                    }
-                });
-            });
-        }
+function createPiece() {
+    const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+    return {
+        x: Math.floor(BOARD_WIDTH / 2) - Math.ceil(shape[0].length / 2),
+        y: 0,
+        shape: shape
+    };
+}
 
-        function createTetrisPiece() {
-            const shapeIndex = Math.floor(Math.random() * 7) + 1;
-            return {
-                x: Math.floor(COLS / 2) - 2,
-                y: 0,
-                shape: SHAPES[shapeIndex],
-                color: shapeIndex
-            };
-        }
-
-        function moveTetrisPiece(dx, dy) {
-            tetrisPiece.x += dx;
-            tetrisPiece.y += dy;
-            if (checkTetrisCollision()) {
-                tetrisPiece.x -= dx;
-                tetrisPiece.y -= dy;
-                return false;
-            }
-            return true;
-        }
-
-        function rotateTetrisPiece() {
-            const rotated = tetrisPiece.shape[0].map((_, index) =>
-                tetrisPiece.shape.map(row => row[index]).reverse()
+function collides() {
+    return currentPiece.shape.some((row, dy) => {
+        return row.some((value, dx) => {
+            let x = currentPiece.x + dx;
+            let y = currentPiece.y + dy;
+            return (
+                value !== 0 &&
+                (x < 0 || x >= BOARD_WIDTH || y >= BOARD_HEIGHT || (tetrisBoard[y] && tetrisBoard[y][x]))
             );
-            const previousShape = tetrisPiece.shape;
-            tetrisPiece.shape = rotated;
-            if (checkTetrisCollision()) {
-                tetrisPiece.shape = previousShape;
-            }
-        }
+        });
+    });
+}
 
-        function checkTetrisCollision() {
-            return tetrisPiece.shape.some((row, dy) =>
-                row.some((value, dx) =>
-                    value !== 0 &&
-                    (tetrisBoard[tetrisPiece.y + dy] === undefined ||
-                     tetrisBoard[tetrisPiece.y + dy][tetrisPiece.x + dx] !== 0 ||
-                     tetrisPiece.x + dx < 0 ||
-                     tetrisPiece.x + dx >= COLS ||
-                     tetrisPiece.y + dy >= ROWS)
-                )
-            );
-        }
+function rotate() {
+    const rotated = currentPiece.shape[0].map((val, index) => 
+        currentPiece.shape.map(row => row[index]).reverse()
+    );
+    const previousShape = currentPiece.shape;
+    currentPiece.shape = rotated;
+    if (collides()) {
+        currentPiece.shape = previousShape;
+    }
+}
 
-        function mergeTetrisPiece() {
-            tetrisPiece.shape.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) {
-                        tetrisBoard[tetrisPiece.y + y][tetrisPiece.x + x] = tetrisPiece.color;
-                    }
-                });
-            });
-        }
-
-        function clearTetrisLines() {
-            let linesCleared = 0;
-            tetrisBoard.forEach((row, y) => {
-                if (row.every(value => value !== 0)) {
-                    tetrisBoard.splice(y, 1);
-                    tetrisBoard.unshift(Array(COLS).fill(0));
-                    linesCleared++;
-                }
-            });
-            if (linesCleared > 0) {
-                tetrisScore += linesCleared * 10;
-                updateTetrisScore();
-            }
-        }
-
-        function updateTetrisScore() {
-            tetrisScoreElement.textContent = `分数: ${tetrisScore}`;
+function moveDown() {
+    currentPiece.y++;
+    if (collides()) {
+        currentPiece.y--;
+        merge();
+        currentPiece = createPiece();
+        if (collides()) {
+            tetrisBoard = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
+            clearInterval(tetrisGameLoop);
+            alert('游戏结束！');
             if (tetrisScore > tetrisHighScore) {
                 tetrisHighScore = tetrisScore;
                 localStorage.setItem('tetrisHighScore', tetrisHighScore);
-                tetrisHighScoreElement.textContent = `最高分: ${tetrisHighScore}`;
+                document.getElementById('tetrisHighScore').textContent = `最高分: ${tetrisHighScore}`;
             }
         }
+    }
+}
 
-        function resetTetrisGame() {
-            tetrisBoard = Array(ROWS).fill().map(() => Array(COLS).fill(0));
-            tetrisScore = 0;
-            updateTetrisScore();
-            tetrisPiece = createTetrisPiece();
-        }
-
-        let tetrisDropCounter = 0;
-        let tetrisDropInterval = 1000;
-        let lastTime = 0;
-
-        function updateTetrisGame(time = 0) {
-            const deltaTime = time - lastTime;
-            lastTime = time;
-
-            tetrisDropCounter += deltaTime;
-            if (tetrisDropCounter > tetrisDropInterval) {
-                if (!moveTetrisPiece(0, 1)) {
-                    mergeTetrisPiece();
-                    clearTetrisLines();
-                    tetrisPiece = createTetrisPiece();
-                    if (checkTetrisCollision()) {
-                        resetTetrisGame();
-                    }
-                }
-                tetrisDropCounter = 0;
-            }
-
-            drawTetrisGame();
-            requestAnimationFrame(updateTetrisGame);
-        }
-
-        document.addEventListener('keydown', event => {
-            if (event.keyCode === 37) moveTetrisPiece(-1, 0);
-            if (event.keyCode === 39) moveTetrisPiece(1, 0);
-            if (event.keyCode === 40) moveTetrisPiece(0, 1);
-            if (event.keyCode === 38) rotateTetrisPiece();
-        });
-
-        // 游戏选择和关闭逻辑
-        const snakeIcon = document.getElementById('snakeIcon');
-        const tetrisIcon = document.getElementById('tetrisIcon');
-        const snakeGame = document.getElementById('snakeGame');
-        const tetrisGame = document.getElementById('tetrisGame');
-        const closeSnake = document.getElementById('closeSnake');
-        const closeTetris = document.getElementById('closeTetris');
-
-        snakeIcon.addEventListener('click', () => {
-            snakeGame.style.display = 'block';
-            tetrisGame.style.display = 'none';
-            startSnakeGame();
-        });
-
-        tetrisIcon.addEventListener('click', () => {
-            snakeGame.style.display = 'none';
-            tetrisGame.style.display = 'block';
-            if (tetrisPiece === undefined) {
-                resetTetrisGame();
-                updateTetrisGame();
+function merge() {
+    currentPiece.shape.forEach((row, y) => {
+        row.forEach((value, x) => {
+            if (value) {
+                tetrisBoard[y + currentPiece.y][x + currentPiece.x] = value;
             }
         });
+    });
+    clearLines();
+}
 
-        closeSnake.addEventListener('click', () => {
-            snakeGame.style.display = 'none';
-            if (snakeGameLoop) clearInterval(snakeGameLoop);
-        });
+function clearLines() {
+    let linesCleared = 0;
+    tetrisBoard = tetrisBoard.filter(row => {
+        if (row.every(cell => cell)) {
+            linesCleared++;
+            return false;
+        }
+        return true;
+    });
+    while (tetrisBoard.length < BOARD_HEIGHT) {
+        tetrisBoard.unshift(Array(BOARD_WIDTH).fill(0));
+    }
+    tetrisScore += linesCleared * 100;
+    document.getElementById('tetrisScore').textContent = `分数: ${tetrisScore}`;
+}
 
-        closeTetris.addEventListener('click', () => {
-            tetrisGame.style.display = 'none';
-        });
+let tetrisGameLoop;
 
-        // 初始状态：隐藏所有游戏
-        snakeGame.style.display = 'none';
-        tetrisGame.style.display = 'none';
-    </script>
+function startTetrisGame() {
+    tetrisBoard = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
+    currentPiece = createPiece();
+    tetrisScore = 0;
+    document.getElementById('tetrisScore').textContent = `分数: ${tetrisScore}`;
+    if (tetrisGameLoop) clearInterval(tetrisGameLoop);
+    tetrisGameLoop = setInterval(() => {
+        moveDown();
+        drawTetrisGame();
+    }, 500);
+}
+
+document.addEventListener('keydown', (e) => {
+    if (!currentPiece) return;
+    switch(e.key) {
+        case 'ArrowLeft': 
+            currentPiece.x--;
+            if (collides()) currentPiece.x++;
+            break;
+        case 'ArrowRight': 
+            currentPiece.x++;
+            if (collides()) currentPiece.x--;
+            break;
+        case 'ArrowDown': 
+            moveDown();
+            break;
+        case 'ArrowUp': 
+            rotate();
+            break;
+    }
+    drawTetrisGame();
+});
+
+// 游戏图标点击事件
+document.getElementById('snakeIcon').addEventListener('click', () => {
+    document.getElementById('snakeGame').style.display = 'block';
+    document.getElementById('tetrisGame').style.display = 'none';
+    startSnakeGame();
+});
+
+document.getElementById('tetrisIcon').addEventListener('click', () => {
+    document.getElementById('tetrisGame').style.display = 'block';
+    document.getElementById('snakeGame').style.display = 'none';
+    startTetrisGame();
+});
+
+// 关闭按钮点击事件
+document.getElementById('snakeCloseBtn').addEventListener('click', () => {
+    document.getElementById('snakeGame').style.display = 'none';
+    clearInterval(snakeGameLoop);
+});
+
+document.getElementById('tetrisCloseBtn').addEventListener('click', () => {
+    document.getElementById('tetrisGame').style.display = 'none';
+    clearInterval(tetrisGameLoop);
+});
+
+// 初始化最高分显示
+document.getElementById('snakeHighScore').textContent = `最高分: ${snakeHighScore}`;
+document.getElementById('tetrisHighScore').textContent = `最高分: ${tetrisHighScore}`;
+</script>
 </body>
 </html>
