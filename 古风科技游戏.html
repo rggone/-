@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>古风科技游戏</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Serif SC', serif;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+			padding-left: 0; /* 新增：移除左侧padding */
+        }
+        header {
+            background-color: #1a1a1a;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+		header .container {
+            padding-left: 20px; /* 新增：为header中的container添加左侧padding */
+        }
+        .title {
+            font-size: 24px;
+            background: linear-gradient(45deg, #ff00aa, #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #00ffcc;
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ff00de, 0 0 20px #ff00de;
+            }
+            to {
+                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #ff00de, 0 0 40px #ff00de;
+            }
+        }
+        .game-icons {
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+        }
+        .game-icon {
+            width: 150px;
+            height: 150px;
+            margin: 0 20px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .game-icon:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+        .game-icon img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 10px;
+        }
+        .game-icon span {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+        .game-container {
+            display: none;
+            margin-top: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        canvas {
+            border: 2px solid #00ffcc;
+            box-shadow: 0 0 10px #00ffcc;
+            display: block;
+            margin: 0 auto;
+        }
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .score, .high-score {
+            font-size: 16px;
+            color: #333;
+        }
+        .close-btn {
+            background-color: #ff00aa;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        .close-btn:hover {
+            background-color: #e6009a;
+        }
+        @media (max-width: 768px) {
+            .game-icons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .game-icon {
+                margin: 20px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="title">古风科技</h1>
+            <div class="subtitle">改变生活</div>
+        </div>
+    </header>
+    <div class="container">
+        <div class="game-icons">
+            <div class="game-icon" id="snakeIcon">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDExLjQgMjU1LjNjLTUuNy0xLjEtMTEuNCAxLjQtMTUuMyA1LjVsLTExNS41IDEyMi44TDE2NSAyNTcuOGMtNC0zLjgtMTAuOC0zLjgtMTQuOCAwTDMxLjggMzc1LjNjLTQuMSA0LjEtNCA4LjItLjEgMTEuNGwyLjcgMi43YzMuMSAyLjkgNy4yIDMuNCAxMS4zIDEuMSA1NC43LTMwLjcgMTI1LjctNzIuMSAxMjUuNy03Mi4xcy43LTEuNiAyLTEuNmMxLjQgMCAyLjEgMS42IDIuMSAxLjZzNzAuOSA0MS40IDEyNS43IDcyLjFjNC4xIDIuMyA4LjIgMS44IDExLjMtMS4xbDIuNy0yLjdjMy45LTMuMiA0LTcuNCAwLTExLjRsLTk2LjQtOTUuN2MtNS43LTUuOC0xNS40LTUuOC0yMS4yIDAgMCAwLTE0LjYgMTQuOC0yNS45IDI1LjlMOTYgMzg0bDYwLjIgNTkuOWM0IDMuOSAxMC40IDMuOSAxNC4zIDBMNDc0LjMgMTM5LjFjMy43LTMuNyA1LjgtOC43IDUuOC0xMy45VjkxLjdjMC01LjItNC4zLTkuNC05LjUtOS40aC0zMy42Yy01LjIgMC05LjQgNC4zLTkuNCA5LjV2NTEuMmwtMTUuNyAxNi43Yy0zLjkgNC4yLTUuNCAxMC4xLTMuOCAxNS42IDEuNiA1LjUgNi4xIDkuNyAxMS43IDExLjFsMjAuNyA1LjljNS43IDEuNiAxMS43LS42IDE1LjYtNS40bDQ3LTU3LjFjMy4yLTMuOSAyLjctOS42LTEuMi0xMi44bC0yNy4zLTIyLjVjLTMuOS0zLjItOS42LTIuNy0xMi44IDEuMmwtMTUuNyAxOS4xVjkxLjZjMC0xMC40LTguNC0xOC44LTE4LjgtMTguOGgtMzMuN2MtMTAuNCAwLTE4LjggOC40LTE4LjggMTguOHYzMy41YzAgNS4yIDIuMSAxMC4yIDUuOCAxMy45bDQ3LjcgNDcuN2MyLjggMi44IDYuNCA0LjMgMTAuMiA0LjMgMy45IDAgNy43LTEuNSAxMC42LTQuNGwyMC45LTIxLjljMy44LTQgMy44LTEwLjQgMC0xNC4zbC0yNC4yLTI0LjJjLTQtNC0xMC40LTQtMTQuMyAwbC0yMC45IDIxLjljLTMuOCAzLjktMy44IDEwLjMgMCAxNC4yTDM5NyAxOTguNmwtNzAuNiA3NC45Yy0zLjkgNC4xLTMuOSAxMC41IDAgMTQuNmw3MC42IDc0LjljMy45IDQuMSAxMC4yIDQuMSAxNC4xIDBsNzAuNi03NC45YzMuOS00LjEgMy45LTEwLjUgMC0xNC42bC03MC42LTc0LjljLTMuOS00LjEtMTAuMi00LjEtMTQuMSAwbC03MC42IDc0LjljLTMuOSA0LjEtMy45IDEwLjUgMCAxNC42bDcwLjYgNzQuOWMzLjkgNC4xIDEwLjIgNC4xIDE0LjEgMGw3MC42LTc0LjljMy45LTQuMSAzLjktMTAuNSAwLTE0LjZsLTcwLjYtNzQuOXoiLz48L3N2Zz4=" alt="Snake Game">
+                <span>贪吃蛇</span>
+            </div>
+            <div class="game-icon" id="tetrisIcon">
+                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDk2IDM4NGMwIDguOC03LjIgMTYtMTYgMTZoLTQ4VjE2MGMwLTM1LjMtMjguNy02NC02NC02NEgxNDRjLTguOCAwLTE2LTcuMi0xNi0xNlYzMmMwLTE3LjctMTQuMy0zMi0zMi0zMkg2NEMyOC43IDAgMCAyOC43IDAgNjR2Mzg0YzAgMzUuMyAyOC43IDY0IDY0IDY0aDM4NGMzNS4zIDAgNjQtMjguNyA2NC02NFYzODR6TTMyIDY0YzAtMTcuNyAxNC4zLTMyIDMyLTMyaDMyYzE3LjcgMCAzMiAxNC4zIDMyIDMydjMyYzAgMTcuNy0xNC4zIDMyLTMyIDMySDY0Yy0xNy43IDAtMzItMTQuMy0zMi0zMlY2NHptMCAzODRWMTYwYzAtMTcuNyAxNC4zLTMyIDMyLTMyaDMyYzE3LjcgMCAzMiAxNC4zIDMyIDMydjI4OGMwIDE3LjctMTQuMyAzMi0zMiAzMkg2NGMtMTcuNyAwLTMyLTE0LjMtMzItMzJ6bTQxNiAzMkgxNjBjLTE3LjcgMC0zMi0xNC4zLTMyLTMyVjE2MGMwLTE3LjcgMTQuMy0zMiAzMi0zMmgyODhjMTcuNyAwIDMyIDE0LjMyIDMyIDMydjI4OGMwIDE3LjctMTQuMyAzMi0zMiAzMnoiLz48L3N2Zz4=" alt="Tetris Game">
+                <span>俄罗斯方块</span>
+            </div>
+        </div>
+        <div id="snakeGame" class="game-container">
+            <canvas id="snakeCanvas" width="300" height="300"></canvas>
+            <div class="score-container">
+                <div id="snakeScore" class="score">分数: 0</div>
+                <div id="snakeHighScore" class="high-score">最高分: 0</div>
+            </div>
+            <button class="close-btn" id="closeSnake">关闭游戏</button>
+        </div>
+        <div id="tetrisGame" class="game-container">
+            <canvas id="tetrisCanvas" width="300" height="600"></canvas>
+            <div class="score-container">
+                <div id="tetrisScore" class="score">分数: 0</div>
+                <div id="tetrisHighScore" class="high-score">最高分: 0</div>
+            </div>
+            <button class="close-btn" id="closeTetris">关闭游戏</button>
+        </div>
+    </div>
+
+    <script>
+        // 贪吃蛇游戏代码
+        const snakeCanvas = document.getElementById('snakeCanvas');
+        const snakeCtx = snakeCanvas.getContext('2d');
+        const snakeScoreElement = document.getElementById('snakeScore');
+        const snakeHighScoreElement = document.getElementById('snakeHighScore');
+
+        const gridSize = 10;
+        const tileCount = snakeCanvas.width / gridSize;
+
+        let snake = [
+            {x: 10, y: 10},
+        ];
+        let food = {x: 15, y: 15};
+        let dx = 0;
+        let dy = 0;
+        let snakeScore = 0;
+        let snakeHighScore = localStorage.getItem('snakeHighScore') || 0;
+
+        snakeHighScoreElement.textContent = `最高分: ${snakeHighScore}`;
+
+        function drawSnakeGame() {
+            clearSnakeCanvas();
+            moveSnake();
+            drawSnake();
+            drawFood();
+            checkSnakeCollision();
+            updateSnakeScore();
+        }
+
+        function clearSnakeCanvas() {
+            snakeCtx.fillStyle = '#1a1a1a';
+            snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+        }
+
+        function moveSnake() {
+            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                snakeScore++;
+                generateFood();
+            } else {
+                snake.pop();
+            }
+        }
+
+        function drawSnake() {
+            snakeCtx.fillStyle = '#00ffcc';
+            snake.forEach(segment => {
+                snakeCtx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 1, gridSize - 1);
+            });
+        }
+
+        function drawFood() {
+            snakeCtx.fillStyle = '#ff00aa';
+            snakeCtx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 1, gridSize - 1);
+        }
+
+        function generateFood() {
+            food.x = Math.floor(Math.random() * tileCount);
+            food.y = Math.floor(Math.random() * tileCount);
+        }
+
+        function checkSnakeCollision() {
+            const head = snake[0];
+
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                resetSnakeGame();
+            }
+
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    resetSnakeGame();
+                }
+            }
+        }
+
+        function resetSnakeGame() {
+            if (snakeScore > snakeHighScore) {
+                snakeHighScore = snakeScore;
+                localStorage.setItem('snakeHighScore', snakeHighScore);
+                snakeHighScoreElement.textContent = `最高分: ${snakeHighScore}`;
+            }
+            snake = [{x: 10, y: 10}];
+            food = {x: 15, y: 15};
+            dx = 0;
+            dy = 0;
+            snakeScore = 0;
+        }
+
+        function updateSnakeScore() {
+            snakeScoreElement.textContent = `分数: ${snakeScore}`;
+        }
+
+        function changeDirection(newDx, newDy) {
+            if ((newDx === 1 && dx === -1) || (newDx === -1 && dx === 1) ||
+                (newDy === 1 && dy === -1) || (newDy === -1 && dy === 1)) {
+                return;
+            }
+            dx = newDx;
+            dy = newDy;
+        }
+
+        document.addEventListener('keydown', (event) => {
+            const keyPressed = event.keyCode;
+            if (keyPressed === 37) changeDirection(-1, 0);
+            if (keyPressed === 38) changeDirection(0, -1);
+            if (keyPressed === 39) changeDirection(1, 0);
+            if (keyPressed === 40) changeDirection(0, 1);
+        });
+
+        // 滑动控制
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        snakeCanvas.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, false);
+
+        snakeCanvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, false);
+
+        snakeCanvas.addEventListener('touchend', (e) => {
+            let touchEndX = e.changedTouches[0].clientX;
+            let touchEndY = e.changedTouches[0].clientY;
+
+            let dx = touchEndX - touchStartX;
+            let dy = touchEndY - touchStartY;
+
+            if (Math.abs(dx) > Math.abs(dy)) {
+                // 横向滑动
+                if (dx > 0) {
+                    changeDirection(1, 0); // 右
+                } else {
+                    changeDirection(-1, 0); // 左
+                }
+            } else {
+                // 纵向滑动
+                if (dy > 0) {
+                    changeDirection(0, 1); // 下
+                } else {
+                    changeDirection(0, -1); // 上
+                }
+            }
+        }, false);
+
+        let snakeGameLoop;
+
+        function startSnakeGame() {
+            if (snakeGameLoop) clearInterval(snakeGameLoop);
+            snakeGameLoop = setInterval(drawSnakeGame, 100);
+        }
+
+        // 俄罗斯方块游戏代码
+        const tetrisCanvas = document.getElementById('tetrisCanvas');
+        const tetrisCtx = tetrisCanvas.getContext('2d');
+        const tetrisScoreElement = document.getElementById('tetrisScore');
+        const tetrisHighScoreElement = document.getElementById('tetrisHighScore');
+
+        const COLS = 10;
+        const ROWS = 20;
+        const BLOCK_SIZE = 30;
+
+        // 定义方块形状
+        const SHAPES = [
+            [],
+            [[0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0]],
+            [[1, 0, 0], [1, 1, 1], [0, 0, 0]],
+            [[0, 0, 1], [1, 1, 1], [0, 0, 0]],
+            [[1, 1], [1, 1]],
+            [[0, 1, 1], [1, 1, 0], [0, 0, 0]],
+            [[0, 1, 0], [1, 1, 1], [0, 0, 0]],
+            [[1, 1, 0], [0, 1, 1], [0, 0, 0]]
+        ];
+
+        const COLORS = [
+            null,
+            '#FF0D72',
+            '#0DC2FF',
+            '#0DFF72',
+            '#F538FF',
+            '#FF8E0D',
+            '#FFE138',
+            '#3877FF'
+        ];
+
+        let tetrisBoard = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+        let tetrisPiece;
+        let tetrisScore = 0;
+        let tetrisHighScore = localStorage.getItem('tetrisHighScore') || 0;
+
+        tetrisHighScoreElement.textContent = `最高分: ${tetrisHighScore}`;
+
+        function drawTetrisGame() {
+            tetrisCtx.fillStyle = '#1a1a1a';
+            tetrisCtx.fillRect(0, 0, tetrisCanvas.width, tetrisCanvas.height);
+
+            drawTetrisBoard();
+            drawTetrisPiece();
+        }
+
+        function drawTetrisBoard() {
+            tetrisBoard.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value > 0) {
+                        tetrisCtx.fillStyle = COLORS[value];
+                        tetrisCtx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+                    }
+                });
+            });
+        }
+
+        function drawTetrisPiece() {
+            tetrisPiece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value > 0) {
+                        tetrisCtx.fillStyle = COLORS[tetrisPiece.color];
+                        tetrisCtx.fillRect((tetrisPiece.x + x) * BLOCK_SIZE, (tetrisPiece.y + y) * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+                    }
+                });
+            });
+        }
+
+        function createTetrisPiece() {
+            const shapeIndex = Math.floor(Math.random() * 7) + 1;
+            return {
+                x: Math.floor(COLS / 2) - 2,
+                y: 0,
+                shape: SHAPES[shapeIndex],
+                color: shapeIndex
+            };
+        }
+
+        function moveTetrisPiece(dx, dy) {
+            tetrisPiece.x += dx;
+            tetrisPiece.y += dy;
+            if (checkTetrisCollision()) {
+                tetrisPiece.x -= dx;
+                tetrisPiece.y -= dy;
+                return false;
+            }
+            return true;
+        }
+
+        function rotateTetrisPiece() {
+            const rotated = tetrisPiece.shape[0].map((_, index) =>
+                tetrisPiece.shape.map(row => row[index]).reverse()
+            );
+            const previousShape = tetrisPiece.shape;
+            tetrisPiece.shape = rotated;
+            if (checkTetrisCollision()) {
+                tetrisPiece.shape = previousShape;
+            }
+        }
+
+        function checkTetrisCollision() {
+            return tetrisPiece.shape.some((row, dy) =>
+                row.some((value, dx) =>
+                    value !== 0 &&
+                    (tetrisBoard[tetrisPiece.y + dy] === undefined ||
+                     tetrisBoard[tetrisPiece.y + dy][tetrisPiece.x + dx] !== 0 ||
+                     tetrisPiece.x + dx < 0 ||
+                     tetrisPiece.x + dx >= COLS ||
+                     tetrisPiece.y + dy >= ROWS)
+                )
+            );
+        }
+
+        function mergeTetrisPiece() {
+            tetrisPiece.shape.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value !== 0) {
+                        tetrisBoard[tetrisPiece.y + y][tetrisPiece.x + x] = tetrisPiece.color;
+                    }
+                });
+            });
+        }
+
+        function clearTetrisLines() {
+            let linesCleared = 0;
+            tetrisBoard.forEach((row, y) => {
+                if (row.every(value => value !== 0)) {
+                    tetrisBoard.splice(y, 1);
+                    tetrisBoard.unshift(Array(COLS).fill(0));
+                    linesCleared++;
+                }
+            });
+            if (linesCleared > 0) {
+                tetrisScore += linesCleared * 10;
+                updateTetrisScore();
+            }
+        }
+
+        function updateTetrisScore() {
+            tetrisScoreElement.textContent = `分数: ${tetrisScore}`;
+            if (tetrisScore > tetrisHighScore) {
+                tetrisHighScore = tetrisScore;
+                localStorage.setItem('tetrisHighScore', tetrisHighScore);
+                tetrisHighScoreElement.textContent = `最高分: ${tetrisHighScore}`;
+            }
+        }
+
+        function resetTetrisGame() {
+            tetrisBoard = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+            tetrisScore = 0;
+            updateTetrisScore();
+            tetrisPiece = createTetrisPiece();
+        }
+
+        let tetrisDropCounter = 0;
+        let tetrisDropInterval = 1000;
+        let lastTime = 0;
+
+        function updateTetrisGame(time = 0) {
+            const deltaTime = time - lastTime;
+            lastTime = time;
+
+            tetrisDropCounter += deltaTime;
+            if (tetrisDropCounter > tetrisDropInterval) {
+                if (!moveTetrisPiece(0, 1)) {
+                    mergeTetrisPiece();
+                    clearTetrisLines();
+                    tetrisPiece = createTetrisPiece();
+                    if (checkTetrisCollision()) {
+                        resetTetrisGame();
+                    }
+                }
+                tetrisDropCounter = 0;
+            }
+
+            drawTetrisGame();
+            requestAnimationFrame(updateTetrisGame);
+        }
+
+        document.addEventListener('keydown', event => {
+            if (event.keyCode === 37) moveTetrisPiece(-1, 0);
+            if (event.keyCode === 39) moveTetrisPiece(1, 0);
+            if (event.keyCode === 40) moveTetrisPiece(0, 1);
+            if (event.keyCode === 38) rotateTetrisPiece();
+        });
+
+        // 游戏选择和关闭逻辑
+        const snakeIcon = document.getElementById('snakeIcon');
+        const tetrisIcon = document.getElementById('tetrisIcon');
+        const snakeGame = document.getElementById('snakeGame');
+        const tetrisGame = document.getElementById('tetrisGame');
+        const closeSnake = document.getElementById('closeSnake');
+        const closeTetris = document.getElementById('closeTetris');
+
+        snakeIcon.addEventListener('click', () => {
+            snakeGame.style.display = 'block';
+            tetrisGame.style.display = 'none';
+            startSnakeGame();
+        });
+
+        tetrisIcon.addEventListener('click', () => {
+            snakeGame.style.display = 'none';
+            tetrisGame.style.display = 'block';
+            if (tetrisPiece === undefined) {
+                resetTetrisGame();
+                updateTetrisGame();
+            }
+        });
+
+        closeSnake.addEventListener('click', () => {
+            snakeGame.style.display = 'none';
+            if (snakeGameLoop) clearInterval(snakeGameLoop);
+        });
+
+        closeTetris.addEventListener('click', () => {
+            tetrisGame.style.display = 'none';
+        });
+
+        // 初始状态：隐藏所有游戏
+        snakeGame.style.display = 'none';
+        tetrisGame.style.display = 'none';
+    </script>
+</body>
+</html>
